@@ -14,4 +14,5 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -lomp")
 endif()
 
-add_executable(INHA_ParallelProgramming_002 main.cpp)
+add_executable(INHA_ParallelProgramming_002
+        HW1/gemm_navie.cpp)
