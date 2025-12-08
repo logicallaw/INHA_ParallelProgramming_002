@@ -104,3 +104,55 @@ initialize -> initializer
 
 Student(-1, 1)은 해당 생성자 정의되어 있지 않아서 에러 발생. -> {-1, -1})
 */
+
+/* 다른 풀이
+#include <iostream>
+#include <vector>
+#include <omp.h>
+
+struct Student {
+    int id;
+    int score;
+};
+
+struct custom{
+    static constexpr Student neutral = {-1, 1};
+
+    Student operator() (Student &a, Student &b) {
+        if (a.score != b.score) {
+            return (a.score > b.score) ? a : b;
+        }
+        return (a.id < b.id) ? a : b;
+    }
+};
+
+int main() {
+    std::vector<Student> students(100);
+    for(int i=0; i<100; ++i) {
+        students[i] = {i, i % 40}; // 점수는 0~39 반복
+    }
+
+    students[50].score = 100;
+
+    Student best_student = custom::neutral;
+
+    #pragma omp declare reduction( \   
+        myMax : Student : omp_out = custom()(omp_out, omp_in)
+    )
+    initializer(omp_priv = custom::neutral)
+    
+    #pragma omp parallel for reduction(myMax:best_student)
+    for (int i = 0; i < 100; i++) {
+
+        if (students[i].score > best_student.score || 
+           (students[i].score == best_student.score && students[i].id < best_student.id)) {
+            best_student = students[i];
+        }
+    }
+
+    std::cout << "Best Student ID: " << best_student.id 
+              << ", Score: " << best_student.score << std::endl;
+
+    return 0;
+}
+*/
